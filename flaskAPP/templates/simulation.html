@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+        }
+
+        #simulation-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+
+        #simulation-plot {
+            max-width: 100%;
+        }
+
+        #simulation-stats {
+            margin-left: 20px;
+            border-collapse: collapse;
+            width: 300px;
+        }
+
+        #simulation-stats h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #passenger-stats {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #passenger-stats li {
+            margin-bottom: 10px;
+        }
+    </style>
+    <title>Simulation Results</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('connect', function() {
+            console.log('Connected to server');
+        });
+
+        socket.on('disconnect', function() {
+            console.log('Disconnected from server');
+        });
+
+        socket.on('update_plot', function(data) {
+            // Update the image source to the latest plot
+            $('#simulation-plot').attr('src', data.plot_filename);
+
+            // Display foot steps and vehicle steps
+            updatePassengerStats(data.foot_steps, data.vehicle_steps);
+        });
+
+        function updatePassengerStats(footSteps, vehicleSteps) {
+            // Clear the existing stats
+            $('#passenger-stats').empty();
+
+            // Display the updated stats for each passenger in a table
+            for (let i = 0; i < footSteps.length; i++) {
+                $('#passenger-stats').append(
+                    `<tr>
+                        <td>Passenger ${i + 1}</td>
+                        <td>${footSteps[i]} steps</td>
+                        <td>${vehicleSteps[i]} steps</td>
+                    </tr>`
+                );
+            }
+        }
+
+        // Trigger the simulation to start on page load
+        $(document).ready(function() {
+            socket.emit('simulation_step', {
+                city_size: {{ city_size }},
+                num_vehicles: {{ num_vehicles }},
+                num_passengers: {{ num_passengers }},
+                num_steps: {{ num_steps }}
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Simulation Results</h1>
+    <p>Simulation in progress. View the plot below:</p>
+
+    <div id="simulation-container">
+        <img id="simulation-plot" src="" alt="Simulation Plot">
+
+        <!-- Display simulation statistics in a table -->
+        <div id="simulation-stats">
+            <h2>Simulation Statistics</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Passenger</th>
+                        <th>Foot Steps</th>
+                        <th>Vehicle Steps</th>
+                    </tr>
+                </thead>
+                <tbody id="passenger-stats">
+                    <!-- Passenger statistics will be added dynamically here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

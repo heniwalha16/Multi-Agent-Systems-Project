@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>City Simulation</title>
+</head>
+<body>
+    <h1>City Simulation Parameters</h1>
+    <form action="/simulate" method="post">
+        <label for="city_size">City Size:</label>
+        <input type="number" name="city_size" required>
+        <label for="num_vehicles">Number of Vehicles:</label>
+        <input type="number" name="num_vehicles" required>
+        <label for="num_passengers">Number of Passengers:</label>
+        <input type="number" name="num_passengers" required>
+        <label for="num_steps">Number of Simulation Steps:</label>
+        <input type="number" name="num_steps" required>
+        <button type="submit">Run Simulation</button>
+    </form>
+</body>
+</html>
